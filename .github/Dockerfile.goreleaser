@@ -1,0 +1,4 @@
+FROM jrottenberg/ffmpeg:6-alpine
+COPY stream-tools /bin/
+EXPOSE 8090
+ENTRYPOINT ["/bin/stream-tools"]

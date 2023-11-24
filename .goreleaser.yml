@@ -1,0 +1,97 @@
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    goos:
+      - linux
+    goarch:
+      - amd64
+    ldflags:
+      - -s -w
+    main: ./main.go
+    binary: stream-tools
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - init
+      - "^.*?ci:"
+      - "^.*?test:"
+      - "^.*?build(deps):"
+      - "^.*?build:"
+      - "README"
+      - "Up"
+      - "merge conflict"
+      - Bump
+      - Small fix
+      - Update
+      - Updating
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+      - go mod tidy
+  groups:
+    - title: Dependency updates
+      regexp: '^.*?(feat|fix)\(deps\)!?:.+$'
+      order: 300
+    - title: "New Features"
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 100
+    - title: "Security updates"
+      regexp: '^.*?sec(\([[:word:]]+\))??!?:.+$'
+      order: 150
+    - title: "Bug fixes"
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 200
+    - title: "Documentation updates"
+      regexp: ^.*?doc(\([[:word:]]+\))??!?:.+$
+      order: 400
+    - title: "Build process updates"
+      regexp: ^.*?build(\([[:word:]]+\))??!?:.+$
+      order: 400
+    - title: Other work
+      order: 9999
+
+dockers:
+  - image_templates:
+      - "piplosmedia/stream-tools:v{{ .Version }}"
+    dockerfile: .github/Dockerfile.goreleaser
+    use: buildx
+    build_flag_templates:
+      - "--pull"
+      - "--label=io.artifacthub.package.readme-url=https://raw.githubusercontent.com/piplos/stream-tools/main/README.md"
+      - '--label=io.artifacthub.package.maintainers=[{"name":"Dmitry Shurco"}]'
+      - "--label=io.artifacthub.package.license=MIT"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.name={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+      - "--label=org.opencontainers.image.url={{.GitURL}}"
+      - "--platform=linux/amd64"
+    goarch: amd64
+
+docker_manifests:
+  - name_template: "piplosmedia/stream-tools:latest"
+    image_templates:
+      - "piplosmedia/stream-tools:v{{ .Version }}"
+  - name_template: "piplosmedia/stream-tools:v{{ .Version }}"
+    image_templates:
+      - "piplosmedia/stream-tools:v{{ .Version }}"
+
+release:
+  name_template: "v{{ .Version }}"
+  footer: |
+    **Full Changelog**: https://github.com/piplos/stream-tools/compare/{{ .PreviousTag }}...{{ .Tag }}
