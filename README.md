@@ -7,3 +7,25 @@
 <a href="https://hub.docker.com/r/piplosmedia/stream-tools/"><img src="https://img.shields.io/docker/image-size/piplosmedia/stream-tools/latest"></a>
 
 # stream-tools
+
+### Requests:
+`/ping` - Pings the server for availability, useful for Docker health checks. On a successful response, it will print "ping".  
+
+`/stream/play` - displays what is currently playing. Request parameters:  
+**url** - stream link (mandatory)  
+
+`/stream/status` - отображает статус стрима. Request parameters:  
+**url** - stream link (mandatory)  
+**duration** - stream idle time (optional, default 10)  
+**volume** - stream sound level (optional, default -70.0)  
+
+### Response:
+The response will return with one of the HTTP statuses - 200, 400, 500 and JSON in the form:
+```json
+{
+  "code": int,
+  "message": string
+}
+```
+**code** - duplicate http response status code  
+**message** - message body
